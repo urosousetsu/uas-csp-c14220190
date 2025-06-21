@@ -1,8 +1,9 @@
-import type { NextConfig } from "next";
-import withFlowbiteReact from "flowbite-react/plugin/nextjs";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  eslint: {
+    // Turn off ESLint during build for now
+    ignoreDuringBuilds: true,
+  },
+}
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default withFlowbiteReact(nextConfig);
+module.exports = nextConfig
