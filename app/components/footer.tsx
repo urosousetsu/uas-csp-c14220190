@@ -8,7 +8,7 @@ export default function Footer() {
           </div>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <a href="https://github.com/urosousetsu" className="text-gray-400 hover:text-gray-300 text-sm">
-              Bill's Github
+              Bill&rsquo;s Github
             </a>
           </div>
         </div>
