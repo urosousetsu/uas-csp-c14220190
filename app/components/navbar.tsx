@@ -1,46 +1,13 @@
+// app/components/navbar.tsx
 "use client"
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { getUserSession } from '../lib/getSession';
-import { supabase } from '../lib/supabaseClient';
-
-type User = {
-  id: string;
-  email?: string | null;
-  username: string;
-  role: string;
-};
+import { useState } from 'react';
+import { useAuth } from './authProvider';
 
 export default function NavbarComponent() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    async function fetchUser() {
-      const { user } = await getUserSession();
-      if (user) {
-        // Assign a default role if missing, or fetch the role as needed
-        setUser({
-          id: user.id,
-          email: user.email ?? null,
-          username: user.username,
-          role: (user as any).role ?? 'user', // Replace with actual role fetching logic if needed
-        });
-      } else {
-        setUser(null);
-      }
-    }
-    fetchUser();
-  }, []);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push('/sign-in');
-  };
 
   const isAdmin = user?.role === 'admin';
 
@@ -70,7 +37,7 @@ export default function NavbarComponent() {
                       {isAdmin && <span className="ml-1 text-blue-400">(Admin)</span>}
                     </span>
                     <button
-                      onClick={handleSignOut}
+                      onClick={signOut}
                       className="bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-200 text-sm px-3 py-1 rounded-md"
                     >
                       Sign out
@@ -137,7 +104,7 @@ export default function NavbarComponent() {
                 <div className="text-sm">{user.email}</div>
               </div>
               <button
-                onClick={handleSignOut}
+                onClick={signOut}
                 className="mt-1 w-full flex items-center justify-center px-3 py-2 rounded-md text-base font-medium text-gray-300 bg-[#2a2a2a] hover:bg-[#3a3a3a]"
               >
                 Sign out

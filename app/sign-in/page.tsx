@@ -1,42 +1,47 @@
+// app/sign-in/page.tsx
 "use client"
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../components/authProvider';
 import Footer from '../components/footer';
 import Navbar from '../components/navbar';
-import { supabase } from '../lib/supabaseClient';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { user, signIn } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email.trim() || !password.trim()) {
-      setError('Email and password are required');
+      setErrorMessage('Email and password are required');
       return;
     }
     
     setIsLoading(true);
-    setError('');
+    setErrorMessage('');
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+      const { error } = await signIn(email, password);
 
       if (error) {
-        setError(error.message);
-      } else if (data.user) {
-        router.push('/dashboard');
+        setErrorMessage(error.message);
       }
+      // Redirect happens automatically in useEffect when user changes
     } catch (error) {
-      setError('An unexpected error occurred');
+      setErrorMessage('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -52,9 +57,9 @@ export default function SignIn() {
             <p className="text-gray-400 mt-2">Enter your credentials to access your account</p>
           </div>
           
-          {error && (
+          {errorMessage && (
             <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded mb-6 text-sm">
-              {error}
+              {errorMessage}
             </div>
           )}
           

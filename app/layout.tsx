@@ -1,5 +1,7 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AuthProvider } from "./components/authProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,7 +25,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} bg-[#121212] text-gray-100 antialiased`}
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
