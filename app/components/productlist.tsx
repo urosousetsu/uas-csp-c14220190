@@ -61,9 +61,12 @@ export default function ProductList({ isAdmin }: ProductListProps) {
     );
   }
 
+  // Gunakan perbandingan strict untuk memastikan isAdmin adalah boolean true
+  const showAdminControls = isAdmin === true;
+
   return (
     <div>
-      {isAdmin && (
+      {showAdminControls && (
         <div className="mb-6">
           <button
             onClick={handleAdd}
@@ -87,7 +90,7 @@ export default function ProductList({ isAdmin }: ProductListProps) {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Quantity
               </th>
-              {isAdmin && (
+              {showAdminControls && (
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
@@ -107,7 +110,7 @@ export default function ProductList({ isAdmin }: ProductListProps) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {product.quantity}
                   </td>
-                  {isAdmin && (
+                  {showAdminControls && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                       <button
                         onClick={() => handleEdit(product)}
@@ -128,7 +131,7 @@ export default function ProductList({ isAdmin }: ProductListProps) {
             ) : (
               <tr>
                 <td 
-                  colSpan={isAdmin ? 4 : 3} 
+                  colSpan={showAdminControls ? 4 : 3} 
                   className="px-6 py-8 text-center text-sm text-gray-400"
                 >
                   No products found
@@ -139,13 +142,16 @@ export default function ProductList({ isAdmin }: ProductListProps) {
         </table>
       </div>
 
-      <FormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={loadProducts}
-        product={selectedProduct}
-        isEditing={isEditing}
-      />
+      {/* Hanya render modal jika user adalah admin */}
+      {showAdminControls && (
+        <FormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={loadProducts}
+          product={selectedProduct}
+          isEditing={isEditing}
+        />
+      )}
     </div>
   );
 }

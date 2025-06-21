@@ -6,15 +6,32 @@ import { useEffect, useState } from 'react';
 import { getUserSession } from '../lib/getSession';
 import { supabase } from '../lib/supabaseClient';
 
+type User = {
+  id: string;
+  email?: string | null;
+  username: string;
+  role: string;
+};
+
 export default function NavbarComponent() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     async function fetchUser() {
       const { user } = await getUserSession();
-      setUser(user);
+      if (user) {
+        // Assign a default role if missing, or fetch the role as needed
+        setUser({
+          id: user.id,
+          email: user.email ?? null,
+          username: user.username,
+          role: (user as any).role ?? 'user', // Replace with actual role fetching logic if needed
+        });
+      } else {
+        setUser(null);
+      }
     }
     fetchUser();
   }, []);
@@ -25,26 +42,33 @@ export default function NavbarComponent() {
     router.push('/sign-in');
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <nav className="bg-[#1a1a1a] border-b border-[#2a2a2a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-left">
+          <div className="flex items-center">
+            <Link href="/" className="text-xl font-medium">
               <span className="text-blue-400">P</span>roduct<span className="text-blue-400">M</span>anager
+            </Link>
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-4">
-              {user?.role === 'admin' && (
-                <Link 
-                  href="/admin" 
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
-                </Link>
-              )}
+              <Link 
+                href="/dashboard" 
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Dashboard
+              </Link>
+              
               {user ? (
                 <div className="relative ml-3">
                   <div className="flex items-center">
-                    <span className="text-sm text-gray-300 mr-10">Hi, {user.username}</span>
+                    <span className="text-sm text-gray-300 mr-2">
+                      {user.username} 
+                      {isAdmin && <span className="ml-1 text-blue-400">(Admin)</span>}
+                    </span>
                     <button
                       onClick={handleSignOut}
                       className="bg-[#2a2a2a] hover:bg-[#3a3a3a] text-gray-200 text-sm px-3 py-1 rounded-md"
@@ -95,19 +119,21 @@ export default function NavbarComponent() {
       {/* Mobile menu */}
       <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          {user?.role === 'admin' && (
-            <Link
-              href="/admin"
-              className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
-            >
-            </Link>
-          )}
+          <Link
+            href="/dashboard"
+            className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
+          >
+            Dashboard
+          </Link>
         </div>
         <div className="pt-4 pb-3 border-t border-[#2a2a2a]">
           {user ? (
             <div className="px-2">
               <div className="px-3 py-2 text-gray-400">
-                <div className="text-base font-medium">{user.username}</div>
+                <div className="text-base font-medium">
+                  {user.username}
+                  {isAdmin && <span className="ml-1 text-blue-400">(Admin)</span>}
+                </div>
                 <div className="text-sm">{user.email}</div>
               </div>
               <button

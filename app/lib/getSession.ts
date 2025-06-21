@@ -1,6 +1,18 @@
 import { supabase } from './supabaseClient';
 
-export async function getUserSession() {
+type User = {
+  id: string;
+  email?: string | null;
+  username: string;
+  role: string;
+};
+
+type SessionResponse = {
+  user: User | null;
+  error: Error | null;
+};
+
+export async function getUserSession(): Promise<SessionResponse> {
   try {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
@@ -14,17 +26,18 @@ export async function getUserSession() {
 
     const authUser = sessionData.session.user;
     
-    const isAdmin = authUser.email === 'admin@gmail.com';
+    // Pastikan email yang digunakan benar dan menggunakan perbandingan yang tepat
+    const role = authUser.email === 'admin@gmail.com' ? 'admin' : 'user';
     
-
-    const user = {
+    const user: User = {
       id: authUser.id,
       email: authUser.email,
-      username: authUser.email?.split('@')[0] || 'User', 
+      username: authUser.email?.split('@')[0] || 'User',
+      role: role
     };
     
     return { user, error: null };
   } catch (error) {
-    return { user: null, error };
+    return { user: null, error: error instanceof Error ? error : new Error('Unknown error') };
   }
 }

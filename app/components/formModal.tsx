@@ -12,10 +12,11 @@ type FormModalProps = {
 };
 
 export default function FormModal({ isOpen, onClose, onSave, product, isEditing }: FormModalProps) {
+  // Gunakan string untuk nilai input agar bisa kosong
   const [formData, setFormData] = useState({
     nama_produk: '',
-    harga_satuan: '',  
-    quantity: '',      
+    harga_satuan: '',  // String, bukan number
+    quantity: '',      // String, bukan number
   });
   
   const [errors, setErrors] = useState({
@@ -28,14 +29,14 @@ export default function FormModal({ isOpen, onClose, onSave, product, isEditing 
     if (product && isEditing) {
       setFormData({
         nama_produk: product.nama_produk,
-        harga_satuan: product.harga_satuan.toString(),  
-        quantity: product.quantity.toString(),      
+        harga_satuan: product.harga_satuan.toString(),  // Convert to string
+        quantity: product.quantity.toString(),          // Convert to string
       });
     } else {
       setFormData({
         nama_produk: '',
-        harga_satuan: '', 
-        quantity: '',      
+        harga_satuan: '',  // Empty string, not 0
+        quantity: '',      // Empty string, not 0
       });
     }
   }, [product, isEditing, isOpen]);
@@ -49,13 +50,14 @@ export default function FormModal({ isOpen, onClose, onSave, product, isEditing 
       valid = false;
     }
 
+    // Parse string to number for validation
     const price = parseFloat(formData.harga_satuan);
     if (isNaN(price) || price <= 0) {
       newErrors.harga_satuan = 'Price must be greater than 0';
       valid = false;
     }
 
-
+    // Parse string to number for validation
     const qty = parseInt(formData.quantity);
     if (isNaN(qty) || qty < 0) {
       newErrors.quantity = 'Quantity cannot be negative';
@@ -69,6 +71,7 @@ export default function FormModal({ isOpen, onClose, onSave, product, isEditing 
   const handleSubmit = async () => {
     if (!validate()) return;
 
+    // Convert string to number only when submitting
     const productData = {
       nama_produk: formData.nama_produk,
       harga_satuan: parseFloat(formData.harga_satuan),
@@ -85,7 +88,7 @@ export default function FormModal({ isOpen, onClose, onSave, product, isEditing 
     onClose();
   };
 
-
+  // Jika modal tidak terbuka, jangan render apapun
   if (!isOpen) return null;
 
   return (

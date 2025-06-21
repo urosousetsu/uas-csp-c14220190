@@ -7,8 +7,15 @@ import Navbar from '../components/navbar';
 import ProductList from '../components/productlist';
 import { getUserSession } from '../lib/getSession';
 
+type User = {
+  id: string;
+  email?: string | null;
+  username: string;
+  role: string;
+};
+
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -16,15 +23,20 @@ export default function Dashboard() {
   useEffect(() => {
     async function checkSession() {
       try {
-        const { user, error } = await getUserSession();
+        const { user, error: sessionError } = await getUserSession();
         
-        if (error || !user) {
+        if (sessionError || !user) {
           router.push('/sign-in');
           return;
         }
         
+        // Log data user untuk debugging
+        console.log("User data:", user);
+        console.log("User email:", user.email);
+        console.log("User role:", user.role);
+        
         setUser(user);
-      } catch (err) {
+      } catch (_error) {
         setError('Failed to load user session');
         router.push('/sign-in');
       } finally {
@@ -61,6 +73,7 @@ export default function Dashboard() {
     );
   }
 
+  // Gunakan perbandingan ketat (strict equality)
   const isAdmin = user?.role === 'admin';
 
   return (
@@ -75,6 +88,7 @@ export default function Dashboard() {
               ({isAdmin ? 'Administrator' : 'Regular User'})
             </span>
           </p>
+          
         </div>
         
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg p-6">
